@@ -1,6 +1,6 @@
 import requests
 from aiogram import Router, Dispatcher, dispatcher, F, types, Bot
-from aiogram.filters import Command, CommandStart, Text
+from aiogram.filters import Command, CommandStart
 from aiogram.fsm import state
 from aiogram.types import Message, message
 import pandas as pd
@@ -38,10 +38,11 @@ class FSMFillForm(StatesGroup):
     fill_sell_count = State()
 
 router: Router = Router()
-admin_id = 488249546
+admin_id = 1147300174
 users: dict = {}
 exfile = FSInputFile('excelusers.xlsx')
-photo = FSInputFile('1.png')
+pay50 = FSInputFile('50000.jpg')
+pay5 = FSInputFile('5000.jpg')
 
 
 b = 'excelusers.xlsx'
@@ -77,7 +78,7 @@ async def process_help_command(message: Message, state: FSMContext):
 
 
 # роутер выбора ЮЛ
-@router.message(Text(text='ИП/ЮЛ'), StateFilter(FSMFillForm.fill_start))
+@router.message(F.text=='ИП/ЮЛ', StateFilter(FSMFillForm.fill_start))
 async def process_buy_answer(message: Message, state: FSMContext):
     await state.set_state(FSMFillForm.fill_name)
     users[message.from_user.id] = users.get(message.from_user.id, []) + [message.text]
@@ -106,7 +107,7 @@ async def process_buy_answer(message: Message, state: FSMContext):
     await state.set_state(FSMFillForm.fill_phone)
 
 # клиент выбрал ФИзическое лицо
-@router.message(Text(text='Физическое лицо'), StateFilter(FSMFillForm.fill_start))
+@router.message(F.text=='Физическое лицо', StateFilter(FSMFillForm.fill_start))
 async def process_buy_answer(message: Message, state: FSMContext):
     users[message.from_user.id] = users.get(message.from_user.id, []) + [message.text]
     await message.answer(text='Введите серию и номер паспорта через пробел')
@@ -180,7 +181,7 @@ async def process_FL_phone_wrong(message: Message):
 @router.message(StateFilter(FSMFillForm.fill_email))
 async def process_buy_answer(message: Message, state: FSMContext):
     users[message.from_user.id] = users.get(message.from_user.id, []) + [message.text]
-    await message.answer(text='Введите Регион')
+    await message.answer(text='Введите Город')
     await state.set_state(FSMFillForm.fill_reg)
 
 
@@ -202,9 +203,7 @@ async def process_buy_answer(message: Message, state: FSMContext,):
 async def process_buy_answer(message: Message, state: FSMContext, bot:Bot):
     users[message.from_user.id] = users.get(message.from_user.id, []) + [message.text]
     if message.text == 'Целиком (50000 рублей)':
-        await message.answer(text='Выбрана оплата целиком. QRкод на оплату отправлен следующим сообщением. Для повторного заполнения анкеты нажмите /cancel')
-        print(users)
-        print(users[message.from_user.id][2])
+        await message.answer(text='https://payment.alfabank.ru/shortlink/Zer6wvNm. QRкод на оплату отправлен следующим сообщением. Для повторного заполнения анкеты нажмите /cancel')
         if users[message.from_user.id][2] == "Физическое лицо":
             wsf.append(users.get(message.from_user.id))
             wb.save(b)
@@ -218,19 +217,19 @@ async def process_buy_answer(message: Message, state: FSMContext, bot:Bot):
         await bot.send_document(admin_id, exfile)
 
 
-        await message.answer_photo(photo)
+        await message.answer_photo(pay50)
         await state.set_state(FSMFillForm.fill_sell_count)
-    if message.text == 'Рассрочка на 3 месяца (53000 рублей)':
+    if message.text == 'Рассрочка на 3 месяца (55000 рублей)':
         await message.answer(text='Укажите адрес получения договора рассрочки')
         await state.set_state(FSMFillForm.fill_3)
-    if message.text == 'Рассрочка на 6 месяцев (58000 рублей)':
+    if message.text == 'Рассрочка на 6 месяцев (65000 рублей)':
         await message.answer(text='Укажите адрес получения договора рассрочки')
         await state.set_state(FSMFillForm.fill_6)
 
 # отправка QR на 3 месяца
 @router.message(F.text, StateFilter(FSMFillForm.fill_3))
 async def process_buy_answer(message: Message, state: FSMContext,  bot:Bot):
-    await message.answer(text='Выбрана рассрочка на 3 месяца. QRкод на оплату отправлен следующим сообщением. Для повторного заполнения анкеты нажмите /cancel')
+    await message.answer(text='https://payment.alfabank.ru/shortlink/5187WonS. QRкод на оплату отправлен следующим сообщением. Для повторного заполнения анкеты нажмите /cancel')
     users[message.from_user.id] = users.get(message.from_user.id, []) + [message.text]
 
     if users[message.from_user.id][2] == "Физическое лицо":
@@ -245,14 +244,14 @@ async def process_buy_answer(message: Message, state: FSMContext,  bot:Bot):
     await bot.send_message(admin_id, text=f'Появился новый клиент {users[message.from_user.id]}')
     await bot.send_document(admin_id, exfile)
 
-    await message.answer_photo(photo)
+    await message.answer_photo(pay5)
     await state.set_state(FSMFillForm.fill_sell_count)
 
 
 # отправка QR на 6 месяцев
 @router.message(F.text, StateFilter(FSMFillForm.fill_6))
 async def process_buy_answer(message: Message, state: FSMContext,  bot:Bot):
-    await message.answer(text='Выбрана рассрочка на 6 месяцев. QRкод на оплату отправлен следующим сообщением. Для повторного заполнения анкеты нажмите /cancel')
+    await message.answer(text='https://payment.alfabank.ru/shortlink/5187WonS. Для повторного заполнения анкеты нажмите /cancel')
 
     users[message.from_user.id] = users.get(message.from_user.id, []) + [message.text]
 
@@ -268,7 +267,7 @@ async def process_buy_answer(message: Message, state: FSMContext,  bot:Bot):
     await bot.send_message(admin_id, text=f'Появился новый клиент {users[message.from_user.id]}')
     await bot.send_document(admin_id, exfile)
 
-    await message.answer_photo(photo)
+    await message.answer_photo(pay5)
     await state.set_state(FSMFillForm.fill_sell_count)
 
 

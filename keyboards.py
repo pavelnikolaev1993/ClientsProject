@@ -22,11 +22,11 @@ phone_kb = phone_kb_builder.as_markup(
 
 # клавиатура выбора тарифа
 tar_btn1: KeyboardButton = KeyboardButton(text='Целиком (50000 рублей)')
-tar_btn2: KeyboardButton = KeyboardButton(text='Рассрочка на 3 месяца (53000 рублей)')
-tar_btn3: KeyboardButton = KeyboardButton(text='Рассрочка на 6 месяцев (58000 рублей)')
+tar_btn2: KeyboardButton = KeyboardButton(text='Рассрочка на 3 месяца (55000 рублей)')
+tar_btn3: KeyboardButton = KeyboardButton(text='Рассрочка на 6 месяцев (65000 рублей)')
 
 tar_kb_builder: ReplyKeyboardBuilder = ReplyKeyboardBuilder()
 tar_kb_builder.row(tar_btn1, tar_btn2, tar_btn3)
 tar_kb = tar_kb_builder.as_markup(
     one_time_keyboard=True,
-    resize_keyboard=True)
+    resize_keyboard=False)
